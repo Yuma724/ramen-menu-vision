@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateDishImage } from "@/lib/imageGen";
+import { generateImage } from "@/lib/imageGen";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const imageUrl = await generateDishImage(prompt);
+    const imageUrl = await generateImage(prompt);
 
     return NextResponse.json({ imageUrl });
   } catch (error) {
