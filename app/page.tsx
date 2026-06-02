@@ -91,6 +91,12 @@ export default function Home() {
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Upload a menu image and generate AI-powered dish previews
           </p>
+          <a
+            href="/dashboard"
+            className="mt-3 inline-block rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+          >
+            📡 Content Dashboard を開く
+          </a>
         </div>
 
         <div className="max-w-4xl mx-auto">

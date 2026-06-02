@@ -11,6 +11,21 @@ Next.js (App Router) アプリケーションで、レストランのメニュ�
 5. **共有機能**: 結果を JSON で保存し、共有可能なスラッグ URL を生成
 6. **UI/UX**: Tailwind CSS、スケルトン読み込み、空の状態
 
+## 📡 Content Dashboard (`/dashboard`)
+
+X・SemiAnalysis・Gmail メルマガなど、複数の情報源を一つの画面に集約して確認できるダッシュボードです。
+
+- **ソースアダプタ構造**: `lib/feeds/adapters/` に各ソースを実装。新しい情報源は「アダプタ + モック」を追加するだけで `lib/feeds/registry.ts` に登録できます。
+- **対応ソース（初期）**:
+  - **X (@aleabitoreddit)**: `X_BEARER_TOKEN` を設定すると X API v2 から投稿を取得（未設定時はモック表示）。
+  - **SemiAnalysis**: RSS から自動取得（設定不要）。
+  - **Gmail メルマガ（さとしなかしま / 中島聡）**: `GMAIL_ACCESS_TOKEN`（`gmail.readonly` スコープ）を設定すると Gmail から取得。
+- **グレースフルフォールバック**: いずれかのソースが失敗・未設定でも、モックで画面は崩れません。ソースバーの色（緑=実データ / 黄=モック / 赤=エラー）で状態が一目で分かります。
+- **ソースフィルタ / 手動更新 / 新着順ソート** に対応。
+- 集約 API は `GET /api/feed`。
+
+> 環境変数の設定は [`ENV_TEMPLATE.md`](./ENV_TEMPLATE.md) を参照してください。ダッシュボード用の変数はすべて任意です。
+
 ## セットアップ
 
 ### 1. 依存関係のインストール
