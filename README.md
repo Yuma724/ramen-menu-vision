@@ -17,7 +17,9 @@ X・SemiAnalysis・Gmail メルマガなど、複数の情報源を一つの画�
 
 - **ソースアダプタ構造**: `lib/feeds/adapters/` に各ソースを実装。新しい情報源は「アダプタ + モック」を追加するだけで `lib/feeds/registry.ts` に登録できます。
 - **対応ソース（初期）**:
-  - **X (@aleabitoreddit)**: `X_BEARER_TOKEN` を設定すると X API v2 から投稿を取得（未設定時はモック表示）。
+  - **X (@aleabitoreddit)**: 2通りの取り込みに対応。
+    - **API不要のファイル取り込み（おすすめ）**: ダッシュボード上で CSV / JSON をドラッグ＆ドロップ。**TwExportly の CSV**、**gallery-dl の JSON/NDJSON**、**X API v2 の生 JSON** を自動判別して読み込みます。取り込んだ投稿はブラウザの localStorage に保存され、リロードしても残ります（バックエンド不要・無料）。
+    - **X API v2**: `X_BEARER_TOKEN` を設定すると自動取得（有料プラン / 未設定時はモック表示）。
   - **SemiAnalysis**: RSS から自動取得（設定不要）。
   - **Gmail メルマガ（さとしなかしま / 中島聡）**: `GMAIL_ACCESS_TOKEN`（`gmail.readonly` スコープ）を設定すると Gmail から取得。
 - **グレースフルフォールバック**: いずれかのソースが失敗・未設定でも、モックで画面は崩れません。ソースバーの色（緑=実データ / 黄=モック / 赤=エラー）で状態が一目で分かります。

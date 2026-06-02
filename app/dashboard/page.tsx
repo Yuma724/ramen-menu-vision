@@ -3,10 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import FeedCard from "@/components/dashboard/FeedCard";
 import SourceBar from "@/components/dashboard/SourceBar";
-import type { FeedResponse, FeedSourceId } from "@/types/feed";
+import ImportPanel from "@/components/dashboard/ImportPanel";
+import { loadImportedItems } from "@/lib/feeds/importStore";
+import type { FeedItem, FeedResponse, FeedSourceId, SourceStatus } from "@/types/feed";
 
 export default function DashboardPage() {
   const [data, setData] = useState<FeedResponse | null>(null);
+  const [imported, setImported] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<FeedSourceId | "all">("all");
@@ -30,14 +33,49 @@ export default function DashboardPage() {
 
   useEffect(() => {
     load();
+    setImported(loadImportedItems());
   }, [load]);
 
-  const visibleItems = useMemo(() => {
-    if (!data) return [];
-    return active === "all"
-      ? data.items
-      : data.items.filter((i) => i.sourceId === active);
-  }, [data, active]);
+  // Merge server feed with locally-imported items.
+  // Imported items take precedence: drop a source's mock placeholder once
+  // real imported items exist for that source. De-duplicate by id.
+  const { items, sources } = useMemo(() => {
+    const serverItems = data?.items ?? [];
+    const importedSourceIds = new Set(imported.map((i) => i.sourceId));
+
+    const byId = new Map<string, FeedItem>();
+    for (const it of imported) byId.set(it.id, it);
+    for (const it of serverItems) {
+      if (it.isMock && importedSourceIds.has(it.sourceId)) continue;
+      if (!byId.has(it.id)) byId.set(it.id, it);
+    }
+
+    const merged = [...byId.values()].sort(
+      (a, b) =>
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    );
+
+    // Recompute per-source counts and mark imported sources as "live".
+    const baseSources = data?.sources ?? [];
+    const sourceList: SourceStatus[] = baseSources.map((s) => {
+      const count = merged.filter((m) => m.sourceId === s.id).length;
+      const hasImport = importedSourceIds.has(s.id);
+      return {
+        ...s,
+        itemCount: count,
+        live: s.live || hasImport,
+        ok: s.ok || hasImport,
+      };
+    });
+
+    return { items: merged, sources: sourceList };
+  }, [data, imported]);
+
+  const visibleItems = useMemo(
+    () =>
+      active === "all" ? items : items.filter((i) => i.sourceId === active),
+    [items, active]
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-gray-900 dark:to-gray-950">
@@ -60,8 +98,10 @@ export default function DashboardPage() {
           </button>
         </header>
 
+        <ImportPanel onChange={setImported} importedCount={imported.length} />
+
         {data && (
-          <SourceBar sources={data.sources} active={active} onChange={setActive} />
+          <SourceBar sources={sources} active={active} onChange={setActive} />
         )}
 
         {error && (
