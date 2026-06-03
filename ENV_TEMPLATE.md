@@ -25,9 +25,19 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3000
 # SemiAnalysis RSS（デフォルトで実データ取得。URL変更時のみ設定）
 # SEMIANALYSIS_FEED_URL=https://www.semianalysis.com/feed
 
-# Gmail メルマガ（さとしなかしま）— gmail.readonly スコープのアクセストークン
-# GMAIL_ACCESS_TOKEN=your_gmail_oauth_access_token
-# GMAIL_NAKASHIMA_QUERY=subject:("Life is beautiful") OR "中島聡"
+# Gmail メルマガ（中島聡「週刊Life is beautiful」）— gmail.readonly スコープ
+# 詳しい取得手順は GMAIL_SETUP.md を参照。
+
+# 方式A: アクセストークン直挿し（お試し / 約1時間で失効）
+# GMAIL_ACCESS_TOKEN=ya29....
+
+# 方式B: リフレッシュトークン（推奨 / 自動更新で永続）
+# GMAIL_CLIENT_ID=xxxxx.apps.googleusercontent.com
+# GMAIL_CLIENT_SECRET=xxxxx
+# GMAIL_REFRESH_TOKEN=1//xxxxx
+
+# 検索クエリ（既定は送信元で絞り込み。本編だけにするなら subject も付与）
+# GMAIL_NAKASHIMA_QUERY=from:mailmag@mag2premium.com
 ```
 
 **注意**: 

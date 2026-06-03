@@ -1,27 +1,29 @@
 import type { FeedItem } from "@/types/feed";
 import { fetchWithTimeout, type FeedAdapter, type FetchResult } from "@/lib/feeds/adapter";
+import { getGmailAccessToken } from "@/lib/feeds/gmailAuth";
 
-// Satoshi Nakashima's newsletter ("週刊 Life is beautiful" etc.) delivered to Gmail.
-// Uses the Gmail REST API with an OAuth access token supplied via env.
+// Satoshi Nakajima's (中島聡) weekly newsletter "週刊Life is beautiful",
+// delivered to Gmail from まぐまぐプレミアム (mailmag@mag2premium.com).
+// Uses the Gmail REST API; auth is resolved by lib/feeds/gmailAuth.ts
+// (static access token, or client id/secret + refresh token).
 //
 // Required scope: https://www.googleapis.com/auth/gmail.readonly
-// Provide a (refreshed) access token in GMAIL_ACCESS_TOKEN.
-const ACCESS_TOKEN = process.env.GMAIL_ACCESS_TOKEN;
-// Gmail search query selecting the newsletter. Override to match your inbox.
+//
+// Default query targets the verified sender. Override GMAIL_NAKASHIMA_QUERY to
+// narrow further, e.g. 'from:mailmag@mag2premium.com subject:"Life is beautiful"'.
 const QUERY =
-  process.env.GMAIL_NAKASHIMA_QUERY ||
-  'subject:("Life is beautiful") OR from:(nakajima) OR "中島聡"';
+  process.env.GMAIL_NAKASHIMA_QUERY || "from:mailmag@mag2premium.com";
 
-const SOURCE_NAME = "さとしなかしま メルマガ";
+const SOURCE_NAME = "中島聡 メルマガ";
 
 const MOCK_ITEMS: FeedItem[] = [
   {
     id: "gmail-nakashima-mock-1",
     sourceId: "gmail-nakashima",
     sourceName: SOURCE_NAME,
-    title: "(サンプル) Gmail のメルマガはここに表示されます",
+    title: "(サンプル) 週刊Life is beautiful はここに表示されます",
     summary:
-      "GMAIL_ACCESS_TOKEN（gmail.readonly スコープ）を設定すると、Gmail からメルマガを取得します。未設定のためモックを表示しています。",
+      "Gmail の認証情報（gmail.readonly スコープ）を設定すると、Gmail からメルマガを取得します。未設定のためモックを表示しています。詳しくは GMAIL_SETUP.md を参照。",
     author: "中島聡",
     publishedAt: new Date().toISOString(),
     isMock: true,
@@ -50,11 +52,12 @@ export const gmailNakashimaAdapter: FeedAdapter = {
   id: "gmail-nakashima",
   name: SOURCE_NAME,
   async fetchItems(): Promise<FetchResult> {
-    if (!ACCESS_TOKEN) {
+    const accessToken = await getGmailAccessToken();
+    if (!accessToken) {
       return { items: MOCK_ITEMS, live: false };
     }
 
-    const authHeaders = { Authorization: `Bearer ${ACCESS_TOKEN}` };
+    const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
     const listRes = await fetchWithTimeout(
       `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15&q=${encodeURIComponent(

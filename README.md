@@ -21,7 +21,7 @@ X・SemiAnalysis・Gmail メルマガなど、複数の情報源を一つの画�
     - **API不要のファイル取り込み（おすすめ）**: ダッシュボード上で CSV / JSON をドラッグ＆ドロップ。**TwExportly の CSV**、**gallery-dl の JSON/NDJSON**、**X API v2 の生 JSON** を自動判別して読み込みます。取り込んだ投稿はブラウザの localStorage に保存され、リロードしても残ります（バックエンド不要・無料）。
     - **X API v2**: `X_BEARER_TOKEN` を設定すると自動取得（有料プラン / 未設定時はモック表示）。
   - **SemiAnalysis**: RSS から自動取得（設定不要）。
-  - **Gmail メルマガ（さとしなかしま / 中島聡）**: `GMAIL_ACCESS_TOKEN`（`gmail.readonly` スコープ）を設定すると Gmail から取得。
+  - **Gmail メルマガ（中島聡「週刊Life is beautiful」）**: Gmail API（`gmail.readonly`）から送信元 `mailmag@mag2premium.com` のメールを取得。アクセストークン直挿し（お試し）と、リフレッシュトークンによる自動更新（本番推奨）の両方に対応。設定手順は [`GMAIL_SETUP.md`](./GMAIL_SETUP.md) を参照。
 - **グレースフルフォールバック**: いずれかのソースが失敗・未設定でも、モックで画面は崩れません。ソースバーの色（緑=実データ / 黄=モック / 赤=エラー）で状態が一目で分かります。
 - **ソースフィルタ / 手動更新 / 新着順ソート** に対応。
 - 集約 API は `GET /api/feed`。
